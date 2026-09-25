@@ -1,11 +1,11 @@
 # ---- 前端构建 ----
-FROM node:20-alpine AS frontend
+FROM node:20 AS frontend
 WORKDIR /app
-# 国内构建环境拉 npm 包慢/易断，换淘宝镜像源
+# 国内构建环境拉包慢/易断，换淘宝镜像源
 RUN npm config set registry https://registry.npmmirror.com
 COPY package.json package-lock.json ./
-# 单线程解压：低内存构建机并行解压会 OOM 导致 "Exit handler never called"
-RUN npm ci --maxsockets=1 --no-audit --no-fund
+# 低内存构建机：限制 npm 内存 + 单线程 + 关闭审计
+RUN npm ci --maxsockets=1 --no-audit --no-fund --loglevel=error
 COPY index.html vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json \
      tailwind.config.js postcss.config.js components.json ./
 COPY src ./src
