@@ -2,7 +2,7 @@
 FROM node:20-alpine AS frontend
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 COPY index.html vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json \
      tailwind.config.js postcss.config.js components.json ./
 COPY src ./src
