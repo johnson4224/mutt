@@ -3,9 +3,10 @@ FROM node:20 AS frontend
 WORKDIR /app
 # 国内构建环境拉包慢/易断，换淘宝镜像源
 RUN npm config set registry https://registry.npmmirror.com
+# 低内存构建机：npm 10 会 OOM 崩溃，改用 cnpm（淘宝出品，内存占用减半）
+RUN npm install -g cnpm --registry=https://registry.npmmirror.com
 COPY package.json package-lock.json ./
-# 低内存构建机：限制 npm 内存 + 单线程 + 关闭审计
-RUN npm ci --maxsockets=1 --no-audit --no-fund --loglevel=error
+RUN cnpm install
 COPY index.html vite.config.ts tsconfig.json tsconfig.app.json tsconfig.node.json \
      tailwind.config.js postcss.config.js components.json ./
 COPY src ./src
