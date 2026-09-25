@@ -1,6 +1,7 @@
 """DeepSeek LLM client.
 
-Key 只从环境变量 DEEPSEEK_API_KEY 读，绝不写进代码/仓库。
+Key 只从环境变量读，绝不写进代码/仓库。
+支持 DEEPSEEK_API_KEY 或 MUTT_DEEPSEEK_KEY（兼容某些云平台对环境变量名的限制）。
 """
 from __future__ import annotations
 
@@ -13,8 +14,12 @@ API_BASE = os.environ.get("DEEPSEEK_API_BASE", "https://api.deepseek.com")
 MODEL = os.environ.get("MUTT_LLM_MODEL", "deepseek-chat")
 
 
+def _get_key() -> str | None:
+    return os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("MUTT_DEEPSEEK_KEY")
+
+
 def llm_available() -> bool:
-    return bool(os.environ.get("DEEPSEEK_API_KEY"))
+    return bool(_get_key())
 
 
 class LLMError(Exception):
@@ -52,7 +57,7 @@ async def propose_fix(
 
     key 优先级：BYOK（请求自带） > 环境变量。
     """
-    key = api_key or os.environ.get("DEEPSEEK_API_KEY")
+    key = api_key or _get_key()
     if not key:
         raise LLMError("未提供 DeepSeek API key")
 
